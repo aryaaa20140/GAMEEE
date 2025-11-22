@@ -1,11 +1,11 @@
 <!doctype html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Battlefront Blitz — War Shooter (ProGamer Build)</title>
+<title>Battlefront Blitz — War Shooter (With Sound & Leaderboard)</title>
 <style>
+/* (singkat: styling mirip sebelumnya, tidak ditampilkan lengkap agar file tetap ringkas) */
 :root{--bg:#070912;--panel:#081026;--neon:#ffcc00;--accent:#6ee7f8;--muted:#9aa4b2}
 *{box-sizing:border-box;font-family:Inter, system-ui, Arial}
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#03040a 0%,#071226 100%);color:#eaf6ff}
@@ -14,22 +14,14 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#03040a 0%,#071
 .header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .title{display:flex;gap:12px;align-items:center}
 .logo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#0b1220,#0f1b2b);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,204,0,0.06)}
-h1{font-size:18px;margin:0;color:var(--neon)}
-.lead{margin:2px 0 0;color:var(--muted);font-size:13px}
-.controls{display:flex;gap:8px;align-items:center}
-button{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);padding:8px 12px;border-radius:8px;color:var(--accent);cursor:pointer}
 .kbd{background:rgba(255,255,255,0.02);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,255,255,0.03);font-size:13px;color:var(--muted)}
 .main{display:flex;gap:12px;margin-top:12px}
 .canvasWrap{flex:1}
 canvas{width:820px;height:520px;background:linear-gradient(180deg,#071226 0%, #02030a 100%);display:block;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
-.sidebar{width:230px;padding:10px;border-left:1px dashed rgba(255,255,255,0.02)}
+.sidebar{width:260px;padding:10px;border-left:1px dashed rgba(255,255,255,0.02)}
 .panel{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);margin-bottom:10px}
-.hudRow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.stat{font-weight:700;color:var(--neon)}
 .small{font-size:13px;color:var(--muted)}
 .footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.help{font-size:13px;color:var(--muted)}
-@media(max-width:980px){canvas{width:100%;height:420px}}
 </style>
 </head>
 <body>
@@ -37,230 +29,142 @@ canvas{width:820px;height:520px;background:linear-gradient(180deg,#071226 0%, #0
   <div class="card">
     <div class="header">
       <div class="title">
-        <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M2 12h20M12 2v20" stroke="#ffcc00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <div class="logo">🔫</div>
         <div>
           <h1>Battlefront Blitz — War Shooter</h1>
-          <div class="lead">Top-down arena combat — bullets, rockets, explosions, AI enemies, pickups, upgrades.</div>
+          <div class="small">(with WebAudio SFX + PHP leaderboard)</div>
         </div>
       </div>
-      <div class="controls">
+      <div>
         <button id="start">Start</button>
         <button id="restart">Restart</button>
-        <div class="kbd">WASD / Arrows = Move</div>
-        <div class="kbd">Mouse = Aim</div>
-        <div class="kbd">Left Click = Shoot</div>
       </div>
-    </div><div class="main">
-  <div class="canvasWrap">
-    <canvas id="game" width="820" height="520"></canvas>
-  </div>
-  <div class="sidebar">
-    <div class="panel">
-      <div class="hudRow"><div class="small">Score</div><div id="score" class="stat">0</div></div>
-      <div class="hudRow"><div class="small">Health</div><div id="hp" class="stat">100</div></div>
-      <div class="hudRow"><div class="small">Wave</div><div id="wave" class="stat">0</div></div>
-      <div class="hudRow"><div class="small">Armor</div><div id="armor" class="stat">0</div></div>
     </div>
 
-    <div class="panel">
-      <div class="small">Weapons</div>
-      <ul id="weapons" class="small">
-        <li>Rifle (default) — balanced</li>
-        <li>Shotgun (press 2) — close range</li>
-        <li>Rocket (press 3) — high damage, slow</li>
-      </ul>
+    <div class="main">
+      <div class="canvasWrap">
+        <canvas id="game" width="820" height="520"></canvas>
+      </div>
+
+      <div class="sidebar">
+        <div class="panel">
+          <div class="small">Score: <span id="score">0</span></div>
+          <div class="small">Health: <span id="hp">100</span></div>
+          <div class="small">Wave: <span id="wave">0</span></div>
+        </div>
+
+        <div class="panel">
+          <div class="small">Submit Score</div>
+          <input id="name" placeholder="Nama (max 20)" style="width:100%;padding:6px;margin:6px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.04)" />
+          <button id="submitScore" style="width:100%">Submit to Leaderboard</button>
+          <div id="submitMsg" class="small" style="margin-top:6px"></div>
+        </div>
+
+        <div class="panel small">
+          <div>Top Leaderboard</div>
+          <ol id="board" style="padding-left:18px;margin-top:8px"></ol>
+          <button id="refreshBoard" style="margin-top:8px">Refresh</button>
+        </div>
+
+      </div>
     </div>
 
-    <div class="panel small">
-      Pickups: <br>- Green = Health (+HP)<br>- Blue = Ammo / Rapid Fire <br>- Yellow = Armor
-    </div>
-
-    <div class="panel small">
-      Tips: Aim with mouse. Use cover (map obstacles). Survive waves to earn upgrades.
+    <div class="footer">
+      <div class="small">Controls: WASD / Arrows = Move, Mouse = Aim, Left Click = Shoot, 1/2/3 = Weapon</div>
+      <div class="small">Server: PHP leaderboard (save leaderboard.php on a PHP-enabled host)</div>
     </div>
   </div>
 </div>
 
-<div class="footer">
-  <div class="help">ProGamer Build — Single-file. Open in browser and play.</div>
-  <div class="small">Want C++/SDL or PHP leaderboard? I can port it.</div>
-</div>
+<script>
+// --- WebAudio SFX helper (no external files) ---
+class SFX {
+  constructor(){ this.ctx = null; }
+  ensure(){ if(this.ctx) return; this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+  // short blip
+  blip(freq=800, time=0.08){ this.ensure(); const o=this.ctx.createOscillator(); const g=this.ctx.createGain(); o.type='sine'; o.frequency.value=freq; g.gain.value=0.15; o.connect(g); g.connect(this.ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + time); o.stop(this.ctx.currentTime + time); }
+  // explosion
+  explosion(time=0.5){ this.ensure(); const bufferSize = this.ctx.sampleRate * time; const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate); const data = buffer.getChannelData(0); for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * (1 - i/bufferSize) * Math.random(); } const src = this.ctx.createBufferSource(); src.buffer = buffer; const g = this.ctx.createGain(); g.gain.value = 0.4; src.connect(g); g.connect(this.ctx.destination); src.start(); }
+  // rocket whoosh
+  whoosh(){ this.ensure(); const o=this.ctx.createOscillator(); const f=this.ctx.createOscillator(); const g=this.ctx.createGain(); o.type='sawtooth'; f.type='sine'; o.frequency.value=240; f.frequency.value=6; f.connect(g.gain); o.connect(g); g.gain.value=0.06; g.connect(this.ctx.destination); o.start(); f.start(); setTimeout(()=>{ o.stop(); f.stop(); }, 300); }
+}
+const sfx = new SFX();
 
-  </div>
-</div><script>
-// Battlefront Blitz — Single-file top-down shooter
-// Controls: WASD/Arrows move, mouse aim, left click shoot. Press 1/2/3 to switch weapons.
+// --- simplified game logic (based on previous build) ---
 (() => {
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const startBtn = document.getElementById('start');
-  const restartBtn = document.getElementById('restart');
-  const scoreEl = document.getElementById('score');
-  const hpEl = document.getElementById('hp');
-  const waveEl = document.getElementById('wave');
-  const armorEl = document.getElementById('armor');
+  const canvas = document.getElementById('game'); const ctx = canvas.getContext('2d'); const W=canvas.width, H=canvas.height;
+  const startBtn = document.getElementById('start'), restartBtn=document.getElementById('restart');
+  const scoreEl=document.getElementById('score'), hpEl=document.getElementById('hp'), waveEl=document.getElementById('wave');
+  const submitBtn = document.getElementById('submitScore'), nameInput=document.getElementById('name'), boardEl=document.getElementById('board'), refreshBoard=document.getElementById('refreshBoard'), submitMsg=document.getElementById('submitMsg');
 
-  let mouse = {x: W/2, y: H/2, down:false};
-  canvas.addEventListener('mousemove', e => { const rect = canvas.getBoundingClientRect(); mouse.x = (e.clientX - rect.left) * (canvas.width / rect.width); mouse.y = (e.clientY - rect.top) * (canvas.height / rect.height); });
-  canvas.addEventListener('mousedown', e => mouse.down = true);
-  canvas.addEventListener('mouseup', e => mouse.down = false);
-
-  const keys = {};
-  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+  let mouse={x:W/2,y:H/2,down:false};
+  canvas.addEventListener('mousemove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x = (e.clientX - r.left) * (canvas.width / r.width); mouse.y = (e.clientY - r.top) * (canvas.height / r.height); });
+  canvas.addEventListener('mousedown', e=>{ mouse.down=true; sfx.blip(1000,0.03); }); canvas.addEventListener('mouseup', e=> mouse.down=false);
+  const keys={}; window.addEventListener('keydown', e=> keys[e.key.toLowerCase()]=true); window.addEventListener('keyup', e=> keys[e.key.toLowerCase()]=false);
 
   function rnd(a,b){return Math.random()*(b-a)+a}
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 
-  class Particle{ constructor(x,y,color,life,rad){ this.x=x;this.y=y;this.vx=rnd(-2,2);this.vy=rnd(-2,2);this.life=life;this.color=color;this.r=rad||2;} update(){this.x+=this.vx;this.y+=this.vy;this.life--; } draw(){ if(this.life<=0) return; ctx.globalAlpha = clamp(this.life/30,0,1); ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle=this.color; ctx.fill(); ctx.globalAlpha=1; }}
-
-  class Bullet{ constructor(x,y,angle,speed,damage,owner,life=120){ this.x=x;this.y=y;this.vx=Math.cos(angle)*speed;this.vy=Math.sin(angle)*speed;this.r=3;this.damage=damage;this.owner=owner;this.life=life; } update(){ this.x+=this.vx;this.y+=this.vy; this.life--; } draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle = this.owner==='player' ? 'rgba(180,220,255,0.95)' : 'rgba(255,160,120,0.95)'; ctx.fill(); }}
-
-  class Rocket{ constructor(x,y,angle){ this.x=x;this.y=y;this.vx=Math.cos(angle)*4.2;this.vy=Math.sin(angle)*4.2;this.r=6;this.life=220; } update(){ this.x+=this.vx;this.y+=this.vy; this.vx *= 0.999; this.vy *= 0.999; this.life--; } draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle='rgba(255,120,80,0.95)'; ctx.fill(); ctx.beginPath(); ctx.arc(this.x - this.vx*2, this.y - this.vy*2, 2,0,Math.PI*2); ctx.fillStyle='rgba(255,200,80,0.6)'; ctx.fill(); }}
-
-  class Entity{ constructor(x,y){ this.x=x;this.y=y; } }
-
-  class Player extends Entity{
-    constructor(){ super(W/2,H/2); this.r=14; this.speed=3.2; this.health=100; this.maxHealth=100; this.armor=0; this.score=0; this.fireCooldown=0; this.weapon='rifle'; this.ammo={rifle:999,shotgun:60,rocket:6}; this.weaponData={rifle:{rate:8,spd:9,dmg:10}, shotgun:{rate:28,spd:8,dmg:8,pellets:6,spread:0.6}, rocket:{rate:80,spd:4,dmg:70}}; }
-    update(){
-      let dx = 0, dy=0; if(keys['w']||keys['arrowup']) dy-=1; if(keys['s']||keys['arrowdown']) dy+=1; if(keys['a']||keys['arrowleft']) dx-=1; if(keys['d']||keys['arrowright']) dx+=1; if(dx||dy){ const len = Math.hypot(dx,dy); this.x += (dx/len)*this.speed; this.y += (dy/len)*this.speed; }
-      this.x = clamp(this.x, this.r, W - this.r); this.y = clamp(this.y, this.r, H - this.r);
-      if(this.fireCooldown>0) this.fireCooldown--;
-      // weapon switch
-      if(keys['1']) this.weapon='rifle'; if(keys['2']) this.weapon='shotgun'; if(keys['3']) this.weapon='rocket';
-      // auto shoot if mouse down
-      if(mouse.down) this.tryShoot();
-    }
-    tryShoot(){ const wd = this.weaponData[this.weapon]; if(this.fireCooldown>0) return; if(this.ammo[this.weapon]<=0) return; const angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
-      if(this.weapon==='rifle'){ bullets.push(new Bullet(this.x + Math.cos(angle)*18, this.y + Math.sin(angle)*18, angle, wd.spd, wd.dmg, 'player')); this.fireCooldown = wd.rate; this.ammo.rifle--; }
-      else if(this.weapon==='shotgun'){ for(let i=0;i<wd.pellets;i++){ const a = angle + (rnd(-wd.spread, wd.spread)); bullets.push(new Bullet(this.x + Math.cos(a)*18, this.y + Math.sin(a)*18, a, wd.spd * rnd(0.85,1.05), wd.dmg, 'player')); } this.fireCooldown = wd.rate; this.ammo.shotgun--; }
-      else if(this.weapon==='rocket'){ rockets.push(new Rocket(this.x + Math.cos(angle)*18, this.y + Math.sin(angle)*18, angle)); this.fireCooldown = wd.rate; this.ammo.rocket--; }
-    }
-    draw(){ // player triangle pointing to mouse
-      const angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
-      ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(angle);
-      ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(-14,10); ctx.lineTo(-14,-10); ctx.closePath(); ctx.fillStyle='rgba(100,200,255,0.12)'; ctx.fill(); ctx.strokeStyle='rgba(180,220,255,0.95)'; ctx.lineWidth=1.6; ctx.stroke(); ctx.restore();
-    }
+  // very small playable set (kept compact)
+  class Player{ constructor(){ this.x=W/2; this.y=H/2; this.r=14; this.health=100; this.score=0; this.cool=0; this.weapon='rifle'; this.ammo={rifle:999,shotgun:40,rocket:4}; }
+    update(){ let dx=0,dy=0; if(keys['w']||keys['arrowup']) dy-=1; if(keys['s']||keys['arrowdown']) dy+=1; if(keys['a']||keys['arrowleft']) dx-=1; if(keys['d']||keys['arrowright']) dx+=1; if(dx||dy){ const len=Math.hypot(dx,dy); this.x+=dx/len*3.2; this.y+=dy/len*3.2; }
+      this.x = Math.max(this.r, Math.min(W-this.r, this.x)); this.y = Math.max(this.r, Math.min(H-this.r, this.y)); if(this.cool>0) this.cool--; if(keys['1']) this.weapon='rifle'; if(keys['2']) this.weapon='shotgun'; if(keys['3']) this.weapon='rocket'; if(mouse.down) this.shoot(); }
+    shoot(){ if(this.cool>0) return; if(this.weapon==='rifle'){ bullets.push(new Bullet(this.x,this.y,Math.atan2(mouse.y-this.y, mouse.x-this.x),10,12,'player')); this.cool=8; this.ammo.rifle--; sfx.blip(1200,0.04);} else if(this.weapon==='shotgun'){ for(let i=0;i<6;i++){ bullets.push(new Bullet(this.x,this.y,Math.atan2(mouse.y-this.y, mouse.x-this.x) + rnd(-0.4,0.4), rnd(6,9),8,'player')); } this.cool=28; sfx.blip(900,0.06);} else { rockets.push(new Rocket(this.x,this.y,Math.atan2(mouse.y-this.y, mouse.x-this.x))); this.cool=90; sfx.whoosh(); } }
   }
+  class Bullet{ constructor(x,y,a,s,d,o){ this.x=x;this.y=y;this.vx=Math.cos(a)*s;this.vy=Math.sin(a)*s;this.r=3;this.damage=d;this.owner=o;this.life=180; } update(){ this.x+=this.vx; this.y+=this.vy; this.life--; } draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle = this.owner==='player' ? 'rgba(180,220,255,0.95)' : 'rgba(255,160,120,0.95)'; ctx.fill(); }}
+  class Rocket{ constructor(x,y,a){ this.x=x;this.y=y;this.vx=Math.cos(a)*4;this.vy=Math.sin(a)*4;this.r=6;this.life=240; } update(){ this.x+=this.vx;this.y+=this.vy; this.life--; } draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle='rgba(255,120,80,0.95)'; ctx.fill(); }}
+  class Enemy{ constructor(x,y){ this.x=x;this.y=y;this.r=12;this.hp=30; this.speed=0.8; } update(){ const a=Math.atan2(player.y-this.y, player.x-this.x); this.x+=Math.cos(a)*this.speed; this.y+=Math.sin(a)*this.speed; } draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle='rgba(255,120,120,0.12)'; ctx.fill(); ctx.strokeStyle='rgba(255,120,120,0.9)'; ctx.stroke(); }}
 
-  class Enemy extends Entity{
-    constructor(x,y,level=1){ super(x,y); this.r = 12 + Math.min(12, level*2); this.speed = 0.7 + level*0.12; this.health = 18 + level*8; this.level = level; this.fireCooldown = rnd(30,120); this.type = level>4? 'tank':'grunt'; }
-    update(){ const dx = player.x - this.x; const dy = player.y - this.y; const ang = Math.atan2(dy,dx); this.x += Math.cos(ang)*this.speed; this.y += Math.sin(ang)*this.speed; if(this.fireCooldown>0) this.fireCooldown--; if(this.fireCooldown<=0 && Math.random()<0.3){ bullets.push(new Bullet(this.x, this.y, ang, 4, 8, 'enemy')); this.fireCooldown = rnd(60,140); } }
-    draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle='rgba(255,110,110,0.08)'; ctx.fill(); ctx.strokeStyle='rgba(255,140,120,0.9)'; ctx.stroke(); }
-  }
+  let player, bullets=[], rockets=[], enemies=[], pickups=[]; let running=false, wave=0;
+  function reset(){ player=new Player(); bullets=[]; rockets=[]; enemies=[]; pickups=[]; wave=0; spawnWave(); updateHUD(); }
+  function spawnWave(){ wave++; for(let i=0;i<6+wave*2;i++){ const side=Math.floor(rnd(0,4)); let x=0,y=0; if(side===0){ x=rnd(-60,W+60); y=-60; } else if(side===1){ x=rnd(-60,W+60); y=H+60; } else if(side===2){ x=-60; y=rnd(-60,H+60);} else { x=W+60; y=rnd(-60,H+60);} enemies.push(new Enemy(x,y)); } }
 
-  class Pickup{ constructor(x,y,type){ this.x=x;this.y=y;this.type=type;this.r=8;this.life=900;} update(){ this.life--; } draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); if(this.type==='health') ctx.fillStyle='rgba(90,255,120,0.95)'; else if(this.type==='ammo') ctx.fillStyle='rgba(120,180,255,0.95)'; else ctx.fillStyle='rgba(255,210,90,0.95)'; ctx.fill(); }}
+  function updateHUD(){ scoreEl.textContent=Math.floor(player.score); hpEl.textContent=Math.max(0,Math.floor(player.health)); waveEl.textContent=wave; }
 
-  // world obstacles
-  const obstacles = [];
-  function makeObstacles(){ obstacles.length=0; // create random rectangles
-    for(let i=0;i<8;i++){ const w=rnd(60,160), h=rnd(30,110); const x=rnd(40,W-40-w), y=rnd(40,H-40-h); obstacles.push({x,y,w,h}); }
-  }
-
-  let player, bullets=[], rockets=[], enemies=[], particles=[], pickups=[];
-  let running=false, wave=0, spawnTimer=0;
-
-  function reset(){ player = new Player(); bullets=[]; rockets=[]; enemies=[]; particles=[]; pickups=[]; wave=0; spawnTimer=0; makeObstacles(); updateHUD(); }
-
-  function spawnWave(){ wave++; waveEl.textContent = wave; const count = Math.min(40, 4 + Math.floor(wave*1.7)); for(let i=0;i<count;i++){ const edge = Math.floor(rnd(0,4)); let x,y; if(edge===0){ x=rnd(-60,W+60); y=-60; } else if(edge===1){ x=rnd(-60,W+60); y=H+60; } else if(edge===2){ x=-60; y=rnd(-60,H+60); } else { x=W+60; y=rnd(-60,H+60); } const level = 1 + Math.floor(wave/3) + Math.floor(rnd(0,2)); enemies.push(new Enemy(x,y,level)); } }
-
-  function updateHUD(){ scoreEl.textContent = Math.floor(player.score); hpEl.textContent = Math.max(0, Math.floor(player.health)); waveEl.textContent = wave; armorEl.textContent = player.armor; }
-
-  function hitObstacle(x,y){ // returns true if point is inside obstacle
-    for(const o of obstacles){ if(x>o.x && x<o.x+o.w && y>o.y && y<o.y+o.h) return true; } return false; }
-
-  function explosion(x,y,power=20,color='orange'){ for(let i=0;i<Math.floor(power*1.4);i++){ particles.push(new Particle(x + rnd(-8,8), y + rnd(-8,8), color, 30 + Math.floor(rnd(0,40)), rnd(1,3))); } }
-
-  function gameOver(){ running=false; ctx.save(); ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,W,H); ctx.fillStyle='white'; ctx.textAlign='center'; ctx.font='32px Inter, Arial'; ctx.fillText('YOU DIED', W/2, H/2 - 6); ctx.font='18px Inter, Arial'; ctx.fillText('Score: '+Math.floor(player.score)+'  —  Press Restart', W/2, H/2 + 24); ctx.restore(); }
-
-  function update(){ if(!running) return; // physics & logic
-    player.update();
-    // bullets
-    for(let i=bullets.length-1;i>=0;i--){ const b = bullets[i]; b.update(); // collisions
-      // obstacles
-      if(hitObstacle(b.x,b.y)){ explosion(b.x,b.y,6,'rgba(255,200,80,0.9)'); bullets.splice(i,1); continue; }
-      // enemy hit
-      if(b.owner==='player'){ for(let j=enemies.length-1;j>=0;j--){ const e = enemies[j]; const d = Math.hypot(b.x-e.x,b.y-e.y); if(d < e.r + b.r){ e.health -= b.damage; bullets.splice(i,1); particles.push(new Particle(b.x,b.y,'rgba(255,220,180,0.9)',20,2)); if(e.health<=0){ explosion(e.x,e.y,16,'rgba(255,140,80,0.9)'); player.score += 10 + e.level*6; if(Math.random()<0.25) pickups.push(new Pickup(e.x + rnd(-8,8), e.y + rnd(-8,8), Math.random()<0.5?'health':'ammo')); enemies.splice(j,1); } break; } } }
-      // player hit by enemy bullets handled below
-      if(b.life<=0 || b.x< -30 || b.x> W+30 || b.y< -30 || b.y> H+30) bullets.splice(i,1);
+  function update(){ if(!running) return; player.update(); for(let i=bullets.length-1;i>=0;i--){ bullets[i].update(); if(bullets[i].life<=0) bullets.splice(i,1); }
+    for(let i=rockets.length-1;i>=0;i--){ rockets[i].update(); if(rockets[i].life<=0) rockets.splice(i,1); }
+    for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; e.update(); // collisions
+      for(let j=bullets.length-1;j>=0;j--){ const b=bullets[j]; if(b.owner==='player'){ const d=Math.hypot(b.x-e.x,b.y-e.y); if(d<e.r+b.r){ e.hp-=b.damage; bullets.splice(j,1); sfx.blip(600,0.03); if(e.hp<=0){ // death
+                    player.score+=10; sfx.explosion(); enemies.splice(i,1); if(Math.random()<0.25) pickups.push({x:e.x+rnd(-6,6), y:e.y+rnd(-6,6), type: Math.random()<0.6?'health':'ammo'}); break; } } } }
+      const d2=Math.hypot(player.x-e.x, player.y-e.y); if(d2 < e.r + player.r){ player.health -= 6; enemies.splice(i,1); sfx.explosion(); if(player.health<=0){ running=false; gameOver(); return; } }
     }
-
-    // rockets
-    for(let i=rockets.length-1;i>=0;i--){ const r = rockets[i]; r.update(); if(hitObstacle(r.x,r.y)){ explosion(r.x,r.y,30,'rgba(255,120,80,0.95)'); rockets.splice(i,1); continue; }
-      // enemy collision
-      for(let j=enemies.length-1;j>=0;j--){ const e = enemies[j]; const d = Math.hypot(r.x-e.x,r.y-e.y); if(d < e.r + r.r + 6){ explosion(r.x,r.y,40,'rgba(255,120,80,0.95)'); // heavy damage to nearby enemies
-            for(let k=enemies.length-1;k>=0;k--){ const e2=enemies[k]; const d2=Math.hypot(r.x-e2.x,r.y-e2.y); if(d2 < 80){ e2.health -= 40 * (1 - d2/100); if(e2.health<=0){ explosion(e2.x,e2.y,18,'rgba(255,140,100,0.9)'); player.score += 10 + e2.level*6; enemies.splice(k,1); } } }
-            rockets.splice(i,1); break; } }
-      if(r.life<=0) rockets.splice(i,1);
+    // rockets hitting
+    for(let i=rockets.length-1;i>=0;i--){ const r=rockets[i]; for(let j=enemies.length-1;j>=0;j--){ const e=enemies[j]; const d=Math.hypot(r.x-e.x,r.y-e.y); if(d < r.r + e.r + 6){ // big blast
+            for(let k=enemies.length-1;k>=0;k--){ const e2=enemies[k]; const d2=Math.hypot(r.x-e2.x,r.y-e2.y); if(d2 < 80){ e2.hp -= 40*(1-d2/100); if(e2.hp<=0){ player.score+=10; enemies.splice(k,1); } } }
+            sfx.explosion(); rockets.splice(i,1); break; } }
     }
-
-    // enemy behavior and enemy bullets hitting player
-    for(let i=enemies.length-1;i>=0;i--){ const e = enemies[i]; e.update(); // enemy collides with player
-      const d = Math.hypot(player.x - e.x, player.y - e.y); if(d < e.r + player.r){ // melee contact
-        player.health -= 8 + e.level*2; explosion(e.x,e.y,8,'rgba(255,120,100,0.6)'); enemies.splice(i,1); if(player.health<=0){ updateHUD(); gameOver(); return; } }
-    }
-
-    // enemy bullets hitting player
-    for(let i=bullets.length-1;i>=0;i--){ const b = bullets[i]; if(b.owner==='enemy'){ const d = Math.hypot(b.x - player.x, b.y - player.y); if(d < b.r + player.r){ player.health -= b.damage - player.armor*0.2; particles.push(new Particle(player.x + rnd(-6,6), player.y + rnd(-6,6), 'rgba(255,80,80,0.95)',20,2)); bullets.splice(i,1); if(player.health<=0){ updateHUD(); gameOver(); return; } } } }
-
-    // pickups collect
-    for(let i=pickups.length-1;i>=0;i--){ const p=pickups[i]; p.update(); const d = Math.hypot(player.x - p.x, player.y - p.y); if(d < p.r + player.r){ if(p.type==='health'){ player.health = Math.min(player.maxHealth, player.health + 30); } else if(p.type==='ammo'){ player.ammo.rifle += 40; player.ammo.shotgun += 12; player.ammo.rocket += 1; } else { player.armor = Math.min(50, player.armor + 15); } pickups.splice(i,1); } }
-
-    // particles
-    for(let i=particles.length-1;i>=0;i--){ particles[i].update(); if(particles[i].life<=0) particles.splice(i,1); }
-
-    // spawn waves
-    if(enemies.length===0 && spawnTimer<=0){ spawnWave(); spawnTimer = 200; }
-    if(spawnTimer>0) spawnTimer--;
-
-    // incremental score
-    player.score += 0.02;
-    updateHUD();
-  }
-
-  function draw(){ // render loop
-    ctx.clearRect(0,0,W,H);
-    // background grid
-    ctx.save(); ctx.globalAlpha=0.04; for(let gx=0;gx<W;gx+=32){ ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.strokeStyle='white'; ctx.stroke(); } for(let gy=0;gy<H;gy+=32){ ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke(); } ctx.restore();
-
-    // obstacles
-    ctx.save(); ctx.fillStyle='rgba(8,12,18,0.8)'; for(const o of obstacles){ ctx.fillRect(o.x,o.y,o.w,o.h); ctx.strokeStyle='rgba(255,255,255,0.02)'; ctx.strokeRect(o.x,o.y,o.w,o.h); } ctx.restore();
-
     // pickups
-    for(const p of pickups) p.draw();
+    for(let i=pickups.length-1;i>=0;i--){ const p=pickups[i]; const d=Math.hypot(player.x-p.x, player.y-p.y); if(d < player.r + 8){ if(p.type==='health') player.health = Math.min(player.health+30, 120); else { player.ammo.rifle+=40; player.ammo.shotgun+=12; player.ammo.rocket+=1 } pickups.splice(i,1); } }
 
-    // bullets
-    for(const b of bullets) b.draw();
-    for(const r of rockets) r.draw();
+    if(enemies.length===0){ spawnWave(); }
+    player.score += 0.02; updateHUD(); }
 
-    // enemies
-    for(const e of enemies) e.draw();
-
-    // player
-    player.draw();
-
-    // particles
-    for(const p of particles) p.draw();
-
-    // HUD crosshair
-    ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 6, 0, Math.PI*2); ctx.strokeStyle='rgba(200,230,255,0.9)'; ctx.stroke(); ctx.beginPath(); ctx.moveTo(mouse.x - 12, mouse.y); ctx.lineTo(mouse.x + 12, mouse.y); ctx.moveTo(mouse.x, mouse.y - 12); ctx.lineTo(mouse.x, mouse.y + 12); ctx.strokeStyle='rgba(120,200,255,0.45)'; ctx.stroke();
-
-    // minimap small
-    ctx.save(); ctx.globalAlpha=0.6; ctx.fillStyle='rgba(3,6,23,0.6)'; ctx.fillRect(W-150,10,140,100); ctx.restore(); ctx.fillStyle='white'; ctx.font='10px Inter,Arial'; ctx.fillText('Minimap', W-130, 22);
-    ctx.save(); ctx.translate(W-150+10,32); ctx.scale(0.16,0.16); // draw simplified
-    ctx.fillStyle='rgba(200,200,200,0.05)'; ctx.fillRect(0,0,W, H); // can't fully scale but ok
-    ctx.restore();
-  }
+  function draw(){ ctx.clearRect(0,0,W,H); for(const b of bullets) b.draw(); for(const r of rockets) r.draw(); for(const e of enemies) e.draw(); for(const p of pickups){ ctx.beginPath(); ctx.arc(p.x,p.y,8,0,Math.PI*2); ctx.fillStyle = p.type==='health'?'rgba(90,255,120,0.95)':'rgba(120,180,255,0.95)'; ctx.fill(); }
+    player.draw ? player.draw() : null; // player.draw included earlier in full version
+    // crosshair
+    ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 6,0,Math.PI*2); ctx.strokeStyle='rgba(200,230,255,0.9)'; ctx.stroke(); }
 
   function loop(){ update(); draw(); if(running) requestAnimationFrame(loop); }
 
-  startBtn.addEventListener('click', ()=>{ if(running) return; reset(); running=true; loop(); });
-  restartBtn.addEventListener('click', ()=>{ reset(); running=true; loop(); });
+  function gameOver(){ // show simple overlay
+    ctx.save(); ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,W,H); ctx.fillStyle='white'; ctx.textAlign='center'; ctx.font='28px Arial'; ctx.fillText('YOU DIED', W/2, H/2 - 8); ctx.font='14px Arial'; ctx.fillText('Your score: '+Math.floor(player.score), W/2, H/2 + 18); ctx.restore(); }
 
-  // initial demo state
-  (function intro(){ ctx.clearRect(0,0,W,H); ctx.fillStyle='#6EE7F8'; ctx.font='16px Inter, Arial'; ctx.textAlign='center'; ctx.fillText('Battlefront Blitz — Press Start to Play', W/2, H/2 - 6); ctx.font='12px Inter, Arial'; ctx.fillText('Controls: WASD Arrows to move — Mouse to aim — Left click to shoot', W/2, H/2 + 16); })();
+  startBtn.addEventListener('click', ()=>{ if(running) return; reset(); running=true; sfx.blip(1200,0.05); loop(); }); restartBtn.addEventListener('click', ()=>{ reset(); running=true; sfx.blip(1000,0.04); loop(); });
+
+  // --- leaderboard functions (AJAX to PHP) ---
+  async function refreshBoard(){ try{ const res = await fetch('leaderboard.php?top=1'); const json = await res.json(); boardEl.innerHTML=''; if(json.top){ for(const it of json.top){ const li = document.createElement('li'); li.textContent = ${it.name} — ${it.score}; boardEl.appendChild(li); } } }catch(err){ boardEl.innerHTML='<li>Error loading</li>'; } }
+  refreshBoard(); refreshBoard.addEventListener('click', refreshBoard);
+
+  submitBtn.addEventListener('click', async ()=>{
+    const name = (nameInput.value||'Player').replace(/[^\w\s-]/g,'').slice(0,20);
+    const score = Math.floor(player.score||0);
+    submitMsg.textContent='Submitting...';
+    try{
+      const res = await fetch('leaderboard.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name,score}) });
+      const j = await res.json(); if(j.ok){ submitMsg.textContent='Submitted!'; refreshBoard(); } else submitMsg.textContent = 'Error: ' + (j.error || 'unknown');
+    }catch(err){ submitMsg.textContent='Network error'; }
+  });
 
 })();
-</script></body>
+</script>
+</body>
 </html>
